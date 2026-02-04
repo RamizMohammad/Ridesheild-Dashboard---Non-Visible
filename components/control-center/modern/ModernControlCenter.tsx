@@ -1,18 +1,38 @@
 "use client"
 
-import { useState } from "react"
-import { Zap } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Zap, Loader2 } from "lucide-react"
 
 import { ModernActiveRidesTable } from "./ModernActiveRidesTable"
 import { ModernStageFilters } from "./ModernStageFilters"
 import { ModernActivityStream } from "./ModernActivityStream"
-import { mockActiveRides, mockSystemLogs } from "@/components/control-center/mock-data"
-
+import { mockSystemLogs, ActiveRide } from "@/components/control-center/mock-data"
 export function ModernControlCenter() {
+    const [rides, setRides] = useState<ActiveRide[]>([])
+    const [loading, setLoading] = useState(true)
     const [activeFilter, setActiveFilter] = useState("all")
 
-    // Filter Logic
-    const filteredRides = mockActiveRides.filter((ride) => {
+    useEffect(() => {
+        const fetchRides = async () => {
+            try {
+                const res = await fetch("/api/rides/active")
+                if (res.ok) {
+                    const data = await res.json()
+                    setRides(data)
+                }
+            } catch (error) {
+                console.error("Failed to fetch rides:", error)
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        fetchRides()
+        const interval = setInterval(fetchRides, 30000)
+        return () => clearInterval(interval)
+    }, [])
+
+    const filteredRides = rides.filter((ride) => {
         if (activeFilter === "all") return true
         if (activeFilter === "emergency") return ride.status === "Emergency"
         return ride.stage.toString() === activeFilter
@@ -36,18 +56,24 @@ export function ModernControlCenter() {
                 </div>
             </div>
 
-            <div className="flex flex-col gap-8">
-                {/* Main Content: Filters & Table */}
-                <div className="lg:col-span-3 space-y-6">
-                    <ModernStageFilters currentFilter={activeFilter} onFilterChange={setActiveFilter} />
-                    <ModernActiveRidesTable data={filteredRides} />
+            {loading ? (
+                <div className="h-64 flex items-center justify-center">
+                    <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
                 </div>
+            ) : (
+                <div className="flex flex-col gap-8">
+                    {/* Main Content: Filters & Table */}
+                    <div className="lg:col-span-3 space-y-6">
+                        <ModernStageFilters currentFilter={activeFilter} onFilterChange={setActiveFilter} />
+                        <ModernActiveRidesTable data={filteredRides} />
+                    </div>
 
-                {/* Side Panel: Stream */}
-                <div className="lg:col-span-1 space-y-6">
-                    <ModernActivityStream logs={mockSystemLogs} />
+                    {/* Side Panel: Stream */}
+                    <div className="lg:col-span-1 space-y-6">
+                        <ModernActivityStream logs={mockSystemLogs} />
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
     )
 }

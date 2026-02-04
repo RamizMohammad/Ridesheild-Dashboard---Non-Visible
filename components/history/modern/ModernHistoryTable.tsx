@@ -49,6 +49,7 @@ export type Ride = {
     driverName?: string
     driverEmail?: string
     stage: 0 | 1 | 2 | 3
+    status: string // Added status field
     duration: string
     alertSent: boolean
     completedAt: string
@@ -59,120 +60,11 @@ export type Ride = {
     logs?: string[]
 }
 
-// Mock Data
-const data: Ride[] = [
-    {
-        id: "RIDE-9382",
-        userMasked: "Rohan D.",
-        driverMasked: "Amit S.",
-        userName: "Rohan Das",
-        userEmail: "rohan.das@gmail.com",
-        driverName: "Amit Singh",
-        driverEmail: "amit.singh@uber.com",
-        stage: 0,
-        duration: "24m",
-        alertSent: false,
-        completedAt: "2024-04-20 10:30 AM",
-        location: "Connaught Place",
-        startTime: "10:06 AM",
-        endTime: "10:30 AM",
-        timeline: [
-            { stage: 0, time: "10:06 AM", label: "Ride Started", description: "Normal ride start at CP Inner Circle." },
-            { stage: 0, time: "10:30 AM", label: "Ride Completed", description: "Arrived at destination safely." }
-        ],
-        logs: ["Ride request accepted", "Driver arrived", "Trip started", "Payment processed"]
-    },
-    {
-        id: "RIDE-2931",
-        userMasked: "Kavita S.",
-        driverMasked: "Rajesh K.",
-        userName: "Kavita Sharma",
-        userEmail: "kavita.sharma@outlook.com",
-        driverName: "Rajesh Kumar",
-        driverEmail: "rajesh.k@ola.in",
-        stage: 2,
-        duration: "45m",
-        alertSent: true,
-        completedAt: "2024-04-20 11:15 AM",
-        location: "Dwarka Sector 21",
-        startTime: "10:30 AM",
-        endTime: "11:15 AM",
-        timeline: [
-            { stage: 0, time: "10:30 AM", label: "Ride Started", description: "Pickup confirmed." },
-            { stage: 1, time: "10:45 AM", label: "Audio Anomaly", description: "Elevated voice volume detected." },
-            { stage: 2, time: "10:46 AM", label: "Video Activated", description: "System activated camera due to sustained noise." },
-            { stage: 0, time: "11:15 AM", label: "Ride Completed", description: "Issue resolved, passenger dropped off." }
-        ],
-        logs: ["Audio threshold exceeded (85dB)", "Video stream request sent", "Operator alert triggered"]
-    },
-    {
-        id: "RIDE-4421",
-        userMasked: "Ankit M.",
-        driverMasked: "Suresh Y.",
-        userName: "Ankit Mehta",
-        userEmail: "ankit.mehta@tech.in",
-        driverName: "Suresh Yadav",
-        driverEmail: "suresh.y@drive.in",
-        stage: 3,
-        duration: "12m",
-        alertSent: true,
-        completedAt: "2024-04-20 01:45 PM",
-        location: "Lodi Gardens",
-        startTime: "01:33 PM",
-        endTime: "01:45 PM",
-        timeline: [
-            { stage: 0, time: "01:33 PM", label: "Ride Started", description: "Pickup confirmed." },
-            { stage: 3, time: "01:40 PM", label: "Emergency Trigger", description: "SOS button pressed by passenger." },
-            { stage: 3, time: "01:45 PM", label: "Police Dispatched", description: "Local authorities notified." }
-        ],
-        logs: ["SOS signal received", "Location tracking high-frequency mode enabled", "Emergency contact notified"]
-    },
-    {
-        id: "RIDE-1029",
-        userMasked: "Meera R.",
-        driverMasked: "Vikram C.",
-        userName: "Meera Rao",
-        userEmail: "meera.rao@gmail.com",
-        driverName: "Vikram Chopra",
-        driverEmail: "vikram.c@uber.com",
-        stage: 1,
-        duration: "18m",
-        alertSent: false,
-        completedAt: "2024-04-20 12:00 PM",
-        location: "IGIA T3",
-        startTime: "11:42 AM",
-        endTime: "12:00 PM",
-        timeline: [
-            { stage: 0, time: "11:42 AM", label: "Ride Started", description: "Pickup confirmed." },
-            { stage: 1, time: "11:50 AM", label: "Route Deviation", description: "Driver took unexpected turn." },
-            { stage: 0, time: "12:00 PM", label: "Ride Completed", description: "Arrived at terminal." }
-        ],
-        logs: ["GPS deviation > 500m", "Route recalculation"]
-    },
-    {
-        id: "RIDE-5532",
-        userMasked: "Vikram J.",
-        driverMasked: "Dinesh P.",
-        userName: "Vikram Jain",
-        userEmail: "vikram.j@yahoo.com",
-        driverName: "Dinesh Patel",
-        driverEmail: "dinesh.p@ola.in",
-        stage: 0,
-        duration: "32m",
-        alertSent: false,
-        completedAt: "2024-04-20 02:30 PM",
-        location: "South Ex II",
-        startTime: "01:58 PM",
-        endTime: "02:30 PM",
-        timeline: [
-            { stage: 0, time: "01:58 PM", label: "Ride Started", description: "Normal start." },
-            { stage: 0, time: "02:30 PM", label: "Ride Completed", description: "Standard dropoff." }
-        ],
-        logs: ["Normal operation"]
-    },
-]
+interface ModernHistoryTableProps {
+    data: Ride[]
+}
 
-export function ModernHistoryTable() {
+export function ModernHistoryTable({ data }: ModernHistoryTableProps) {
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
@@ -244,21 +136,21 @@ export function ModernHistoryTable() {
             ),
         },
         {
-            accessorKey: "stage",
+            accessorKey: "status",
             header: "Status",
             cell: ({ row }) => {
-                const stage = row.getValue("stage") as number
+                const status = row.getValue("status") as string
+                // Capitalize first letter
+                const displayStatus = status ? status.charAt(0).toUpperCase() + status.slice(1) : "Unknown"
+
+                let badgeClass = "bg-slate-500/10 text-slate-500 border-slate-500/20"
+                if (status === "completed") badgeClass = "bg-green-500/10 text-green-500 border-green-500/20"
+                else if (status === "canceled") badgeClass = "bg-red-500/10 text-red-500 border-red-500/20"
+                else if (status === "accepted" || status === "started") badgeClass = "bg-blue-500/10 text-blue-500 border-blue-500/20"
+
                 return (
-                    <Badge
-                        variant="outline"
-                        className={
-                            stage === 3 ? "bg-red-500/10 text-red-500 border-red-500/20" :
-                                stage === 2 ? "bg-orange-500/10 text-orange-500 border-orange-500/20" :
-                                    stage === 1 ? "bg-yellow-500/10 text-yellow-500 border-yellow-500/20" :
-                                        "bg-green-500/10 text-green-500 border-green-500/20"
-                        }
-                    >
-                        {stage === 3 ? "Emergency" : stage === 2 ? "Video Active" : stage === 1 ? "Monitored" : "Completed"}
+                    <Badge variant="outline" className={badgeClass}>
+                        {displayStatus}
                     </Badge>
                 )
             },

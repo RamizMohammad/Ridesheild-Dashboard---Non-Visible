@@ -6,14 +6,21 @@ import {
     Activity
 } from 'lucide-react';
 
-const kpis = [
-    { label: 'Total Rides', value: '1,248', icon: Car, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/20' },
-    { label: 'Active Rides', value: '342', icon: Activity, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },
-    { label: 'Emergency', value: '3', icon: ShieldAlert, color: 'text-red-600 dark:text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/20' },
-    { label: 'Monitoring', value: '12', icon: ShieldCheck, color: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-500/20' },
-];
+export interface DashboardStats {
+    totalRides: number
+    activeRides: number
+    emergencyCount: number
+    monitoringCount: number
+}
 
-export function KPIGrid() {
+export function KPIGrid({ stats }: { stats?: DashboardStats }) {
+    const kpis = [
+        { label: 'Total Rides', value: stats?.totalRides.toLocaleString() || '-', icon: Car, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/20' },
+        { label: 'Active Rides', value: stats?.activeRides.toLocaleString() || '-', icon: Activity, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },
+        { label: 'Emergency', value: stats?.emergencyCount.toLocaleString() || '-', icon: ShieldAlert, color: 'text-red-600 dark:text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/20' },
+        { label: 'Monitoring', value: stats?.monitoringCount.toLocaleString() || '-', icon: ShieldCheck, color: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-500/20' },
+    ];
+
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {kpis.map((kpi, i) => (

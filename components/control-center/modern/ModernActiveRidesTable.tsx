@@ -105,6 +105,14 @@ export function ModernActiveRidesTable({ data }: ActiveRidesTableProps) {
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
+        initialState: {
+            sorting: [
+                {
+                    id: "stage",
+                    desc: true,
+                },
+            ],
+        },
     })
 
     return (
