@@ -20,6 +20,10 @@ export async function GET(
                 r.rideid,
                 r.pickLoc,
                 r.dropLoc,
+                r.pickLat,
+                r.pickLon,
+                r.dropLat,
+                r.dropLon,
                 r.status,
                 r.started_at,
                 r.completed_at,
@@ -76,6 +80,8 @@ export async function GET(
 
             pickup: r.pickLoc,
             dropoff: r.dropLoc,
+            pickupCoords: (r.pickLat && r.pickLon) ? { lat: parseFloat(r.pickLat), lng: parseFloat(r.pickLon) } : undefined,
+            dropoffCoords: (r.dropLat && r.dropLon) ? { lat: parseFloat(r.dropLat), lng: parseFloat(r.dropLon) } : undefined,
             startTime: r.started_at ? new Date(r.started_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "--:--",
             endTime: "--:--"
         }

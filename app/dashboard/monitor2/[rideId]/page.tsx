@@ -5,7 +5,6 @@ import { useParams } from "next/navigation"
 import { useEffect, useState } from "react"
 import { Loader2 } from "lucide-react"
 import type { ActiveRide } from "@/components/control-center/mock-data"
-import { ModernMonitorConsole } from "@/components/monitor/modern/ModernMonitorConsole"
 
 export default function MonitorPage() {
     const params = useParams()
@@ -57,7 +56,7 @@ export default function MonitorPage() {
 
     return (
         <div className="p-6  overflow-hidden bg-slate-50 dark:bg-slate-950/50">
-            <ModernMonitorConsole ride={ride} />
+            <ModernMonitorConsoleGoogle ride={ride} />
         </div>
     )
 }

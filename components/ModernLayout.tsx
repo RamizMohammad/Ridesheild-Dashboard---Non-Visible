@@ -8,9 +8,11 @@ import {
     Moon
 } from 'lucide-react';
 import ModernSidebar from './ModernSidebar';
+import { useAuth } from '@/lib/auth-context';
 
 export default function ModernLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
+    const { user } = useAuth();
     const [isDark, setIsDark] = useState(true);
 
     useEffect(() => {
@@ -73,8 +75,8 @@ export default function ModernLayout({ children }: { children: React.ReactNode }
 
                         <div className="flex items-center gap-4 border-l border-black/10 dark:border-white/10 pl-6">
                             <div className="text-right hidden sm:block">
-                                <p className="text-sm font-bold text-slate-900 dark:text-white tracking-tight transition-colors">OPERATOR_X</p>
-                                <p className="text-[10px] mono text-blue-600 dark:text-blue-400 font-bold uppercase tracking-widest transition-colors">Auth Level 4</p>
+                                <p className="text-sm font-bold text-slate-900 dark:text-white tracking-tight transition-colors">{user?.name || 'OPERATOR'}</p>
+                                <p className="text-[10px] mono text-blue-600 dark:text-blue-400 font-bold uppercase tracking-widest transition-colors">{user?.role || 'USER'}</p>
                             </div>
                             <div className="relative">
                                 <img src="https://picsum.photos/seed/operator/80/80" className="w-10 h-10 rounded-xl border border-black/10 dark:border-white/20 shadow-xl" alt="Operator" />

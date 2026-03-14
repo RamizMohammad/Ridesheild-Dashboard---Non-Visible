@@ -85,7 +85,7 @@ export function ModernActiveRidesTable({ data }: ActiveRidesTableProps) {
                 const ride = row.original
                 const isMonitorable = ride.stage >= 1
                 return (
-                    <Link href={`/dashboard/monitor/${ride.id}`}>
+                    <Link href={`/dashboard/monitor2/${ride.id}`}>
                         <button className={`
               flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all
               ${isMonitorable

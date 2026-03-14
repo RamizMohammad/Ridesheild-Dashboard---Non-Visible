@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from "react"
 import { ActiveRide } from "@/components/control-center/mock-data"
 import { toast } from "sonner"
-import io from 'socket.io-client'
 import dynamic from 'next/dynamic'
 import { MapPin, Navigation } from "lucide-react"
 
@@ -36,38 +35,28 @@ export function ModernMonitorConsole({ ride }: MonitorConsoleProps) {
     const center: [number, number] = [28.6139, 77.2090];
 
     const [currentStage, setCurrentStage] = useState(ride.stage)
-    const [audioEnabled, setAudioEnabled] = useState(false)
     const [isConnected, setIsConnected] = useState(false)
-    const [streamPending, setStreamPending] = useState(false)
     const [serverLogs, setServerLogs] = useState<string[]>([])
 
-    // Refs for audio handling
-    const socketRef = useRef<any>(null)
+    // Refs for alert handling
     const alertSocketRef = useRef<WebSocket | null>(null)
     const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-    const audioCtxRef = useRef<AudioContext | null>(null)
-    const mediaSourceRef = useRef<MediaSource | null>(null)
-    const sourceBufferRef = useRef<SourceBuffer | null>(null)
-    const queueRef = useRef<ArrayBuffer[]>([])
-    const audioElRef = useRef<HTMLAudioElement | null>(null)
 
     // Layout Logic
     const showAudio = currentStage >= 1
     const showVideo = currentStage >= 2
     const showEmergency = currentStage >= 3
 
-    // --- Socket & Audio Logic (Identical to before) ---
+    // --- Alert System Logic ---
     useEffect(() => {
-        const socket = io('http://localhost:3001')
-        socketRef.current = socket
-
         const connectAlerts = () => {
             if (alertSocketRef.current?.readyState === WebSocket.OPEN) return;
 
-            const ws = new WebSocket('ws://72.60.205.130:8000/ws')
+            const ws = new WebSocket('ws://76.13.243.16:8000/ws')
             alertSocketRef.current = ws
 
             ws.onopen = () => {
+                setIsConnected(true)
                 setServerLogs(prev => [`[${new Date().toLocaleTimeString()}] Connected to Alert Server`, ...prev])
             }
 
@@ -107,35 +96,14 @@ export function ModernMonitorConsole({ ride }: MonitorConsoleProps) {
             }
 
             ws.onclose = () => {
+                setIsConnected(false)
                 reconnectTimeoutRef.current = setTimeout(() => connectAlerts(), 5000)
             }
         }
 
         connectAlerts()
 
-        function onConnect() { setIsConnected(true) }
-        function onDisconnect() { setIsConnected(false) }
-
-        function onStreamStart(userId: string) {
-            setStreamPending(true)
-            if (audioEnabled) startStreamPlayback()
-        }
-
-        async function onStreamChunk(chunk: ArrayBuffer) {
-            if (sourceBufferRef.current && !sourceBufferRef.current.updating && mediaSourceRef.current?.readyState === 'open') {
-                try { sourceBufferRef.current.appendBuffer(chunk) } catch (e: any) { }
-            } else {
-                queueRef.current.push(chunk)
-            }
-        }
-
-        socket.on('connect', onConnect)
-        socket.on('disconnect', onDisconnect)
-        socket.on('stream_audio_start', onStreamStart)
-        socket.on('stream_audio_chunk', onStreamChunk)
-
         return () => {
-            socket.disconnect()
             if (alertSocketRef.current) {
                 alertSocketRef.current.onclose = null
                 alertSocketRef.current.close()
@@ -143,65 +111,10 @@ export function ModernMonitorConsole({ ride }: MonitorConsoleProps) {
             if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current)
         }
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
-        if (audioEnabled && streamPending) {
-            setStreamPending(false)
-            startStreamPlayback()
-        }
-    }, [audioEnabled, streamPending])
-
-    const enableAudio = () => {
-        if (!audioCtxRef.current) {
-            const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext
-            audioCtxRef.current = new AudioContextClass()
-        }
-        if (audioCtxRef.current.state === 'suspended') audioCtxRef.current.resume()
-        setAudioEnabled(true)
-    }
-
-    const handleAudioSwitch = (checked: boolean) => {
-        if (checked) enableAudio()
-        else setAudioEnabled(false)
-    }
-
-    const startStreamPlayback = () => {
-        if (!audioEnabled || (mediaSourceRef.current && mediaSourceRef.current.readyState === 'open')) return
-
-        const mediaSource = new MediaSource()
-        mediaSourceRef.current = mediaSource
-
-        if (audioElRef.current) {
-            audioElRef.current.src = URL.createObjectURL(mediaSource)
-            audioElRef.current.play().catch(console.error)
-        }
-
-        mediaSource.addEventListener('sourceopen', () => {
-            if (mediaSource.readyState !== 'open') return
-            try {
-                const mimeType = 'audio/webm; codecs=opus'
-                if (!MediaSource.isTypeSupported(mimeType)) return
-
-                const sourceBuffer = mediaSource.addSourceBuffer(mimeType)
-                sourceBufferRef.current = sourceBuffer
-
-                sourceBuffer.addEventListener('updateend', () => {
-                    if (queueRef.current.length > 0 && !sourceBuffer.updating) {
-                        try { sourceBuffer.appendBuffer(queueRef.current.shift()!) } catch (e) { }
-                    }
-                })
-
-                if (queueRef.current.length > 0 && !sourceBuffer.updating) {
-                    try { sourceBuffer.appendBuffer(queueRef.current.shift()!) } catch (e) { }
-                }
-            } catch (e) { }
-        })
-    }
-    // --- End Socket & Audio Logic ---
+    // --- End Alert System Logic ---
 
     return (
         <div className="flex flex-col h-full gap-6 animate-in fade-in duration-500">
-            <audio ref={audioElRef} style={{ display: 'none' }} />
 
             <MonitorHeader
                 rideId={ride.id}
@@ -232,10 +145,7 @@ export function ModernMonitorConsole({ ride }: MonitorConsoleProps) {
                 <div className="flex flex-col gap-6 h-full overflow-hidden">
                     <RideInfoCard ride={ride} />
                     {showAudio && (
-                        <AudioMonitor
-                            enabled={audioEnabled}
-                            onToggle={handleAudioSwitch}
-                        />
+                        <AudioMonitor />
                     )}
 
                     <ActionControls showEmergency={showEmergency} />

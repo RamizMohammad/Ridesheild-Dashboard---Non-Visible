@@ -15,6 +15,8 @@ export type ActiveRide = {
   dropoff: string
   startTime: string
   endTime: string
+  pickupCoords?: { lat: number, lng: number }
+  dropoffCoords?: { lat: number, lng: number }
 }
 
 export type SystemLog = {

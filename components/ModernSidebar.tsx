@@ -13,10 +13,12 @@ import {
     Command,
     ShieldAlert
 } from 'lucide-react';
+import { useAuth } from '@/lib/auth-context';
 
 export default function ModernSidebar() {
     const pathname = usePathname();
     const router = useRouter();
+    const { user } = useAuth();
     const activeMonitoringCount = 0; // Mocked as dashboard doesn't have this context yet
 
     const navItems = [
@@ -34,7 +36,7 @@ export default function ModernSidebar() {
                 </div>
                 <div>
                     <h1 className="text-xl font-bold tracking-tighter text-slate-900 dark:text-white transition-colors">RIDESHIELD</h1>
-                    <p className="text-[10px] mono text-blue-600 dark:text-blue-400 font-bold tracking-[0.2em]">ADMIN</p>
+                    <p className="text-[10px] mono text-blue-600 dark:text-blue-400 font-bold tracking-[0.2em]">{user?.role || 'ADMIN'}</p>
                 </div>
             </div>
 
