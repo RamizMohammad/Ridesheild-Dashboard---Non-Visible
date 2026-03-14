@@ -6,7 +6,7 @@ services:
     container_name: dashboard-app
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "7000:7000"
     env_file:
       - .env
     # Add healthcheck to ensure the app is running
