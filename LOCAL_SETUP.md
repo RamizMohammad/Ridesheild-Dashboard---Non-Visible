@@ -23,7 +23,7 @@ You must have a `.env` file in the root directory. If you don't have one, create
 ```env
 # Example .env contents
 DATABASE_URL="your_database_connection_string"
-NEXT_PUBLIC_SOCKET_SERVER="http://localhost:3000"
+NEXT_PUBLIC_SOCKET_SERVER="http://localhost:7000"
 # Add other variables as needed
 ```
 
@@ -35,7 +35,7 @@ To start the app in development mode (with hot-reloading):
 npm run dev
 ```
 
-The dashboard will be available at [http://localhost:3000](http://localhost:3000).
+The dashboard will be available at [http://localhost:7000](http://localhost:7000).
 
 ## 4. Production Build (Optional)
 
@@ -52,5 +52,5 @@ npm run start
 ## Troubleshooting
 
 - **Node Version**: Ensure `node -v` shows a compatible version.
-- **Port Conflict**: If port 3000 is in use, you can change it using `PORT=3001 npm run dev`.
+- **Port Conflict**: If port 7000 is in use, you can change it using `PORT=7001 npm run dev`.
 - **Database**: Ensure your local database is running and accessible via the credentials in `.env`.

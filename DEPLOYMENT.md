@@ -37,7 +37,7 @@ docker compose up -d
 
 ## 4. Verification
 
-The dashboard should now be accessible at `http://<server-ip>:3000`.
+The dashboard should now be accessible at `http://<server-ip>:7000`.
 
 ### Troubleshooting
 
