@@ -35,11 +35,8 @@ jobs:
             echo "Stopping old container"
             docker compose down
 
-            echo "Removing old images for clean Next.js rebuild"
-            docker compose build --no-cache
-
-            echo "Starting fresh containers"
-            docker compose up -d
+            echo "Building and starting new container"
+            docker compose up -d --build
 
             echo "Cleaning unused images"
             docker image prune -f
