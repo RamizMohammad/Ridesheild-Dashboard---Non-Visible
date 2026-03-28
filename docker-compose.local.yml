@@ -9,7 +9,7 @@ services:
     env_file:
       - .env
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
     # Ensure hot reloading if you were using a dev-specific Dockerfile, 
     # but since we use the production Dockerfile, this runs the standalone build.
     # To use dev mode in Docker, you would need a different Dockerfile or target.
