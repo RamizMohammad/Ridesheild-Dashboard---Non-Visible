@@ -27,6 +27,9 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
+# Install curl for healthcheck in alpine
+RUN apk add --no-cache curl
+
 USER nextjs
 
 EXPOSE 7000
@@ -34,5 +37,8 @@ EXPOSE 7000
 ENV PORT=7000
 # set hostname to localhost
 ENV HOSTNAME="0.0.0.0"
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:7000/api/health || exit 1
 
 CMD ["node", "server.js"]

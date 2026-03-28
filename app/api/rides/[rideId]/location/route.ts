@@ -1,12 +1,15 @@
 import { db } from "@/lib/db"
 import { NextResponse } from "next/server"
+import { logger, logError } from "@/lib/logger"
 
 export async function GET(
     request: Request,
     { params }: { params: Promise<{ rideId: string }> }
 ) {
+    const startTime = Date.now()
     try {
         const rideId = (await params).rideId
+        logger.debug({ rideId }, "Fetching ride location")
         const dbId = rideId.split('-')[1]
 
         if (!dbId || isNaN(parseInt(dbId))) {
@@ -37,10 +40,13 @@ export async function GET(
             lastUpdated: driver.updated_at
         }
 
+        const duration = Date.now() - startTime
+        logger.info({ rideId, duration }, "Ride location fetched successfully")
+
         return NextResponse.json(location)
 
     } catch (error) {
-        console.error("Location API Error:", error)
+        logError(error, "Ride Location API")
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
     }
 }

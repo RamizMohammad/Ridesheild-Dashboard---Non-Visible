@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 
 import { Toaster } from 'sonner';
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,9 +32,22 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider>
-          {children}
-          <Toaster />
+          <ErrorBoundary>
+            {children}
+            <Toaster />
+          </ErrorBoundary>
         </AuthProvider>
+
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            window.addEventListener('unhandledrejection', (event) => {
+              console.error('Unhandled Promise Rejection:', event.reason);
+            });
+            window.addEventListener('error', (event) => {
+              console.error('Global Error Captured:', event.error || event.message);
+            });
+          `
+        }} />
       </body>
     </html>
   );

@@ -1,8 +1,12 @@
 import { db } from "@/lib/db"
 import { NextResponse } from "next/server"
+import { logger, logError } from "@/lib/logger"
 
 export async function GET() {
+    const startTime = Date.now()
     try {
+        logger.debug("Fetching dashboard stats")
+
         // 1. Total Rides
         const [totalRows]: any = await db.query(`SELECT COUNT(*) as count FROM rides`)
         const totalRides = totalRows[0].count
@@ -16,7 +20,6 @@ export async function GET() {
         const activeRides = activeRows[0].count
 
         // 3. Emergency & Monitoring (stage based on ACTIVE rides)
-        // We only care about stages for currently active rides for the dashboard "Live" view
         const [stageRows]: any = await db.query(`
             SELECT 
                 SUM(CASE WHEN sd.stage3 = 1 THEN 1 ELSE 0 END) as emergency_count,
@@ -29,6 +32,14 @@ export async function GET() {
         const emergencyCount = stageRows[0].emergency_count || 0
         const monitoringCount = stageRows[0].monitoring_count || 0
 
+        const duration = Date.now() - startTime
+        logger.info({ 
+            duration, 
+            totalRides, 
+            activeRides, 
+            emergencyCount 
+        }, "Dashboard stats fetched successfully")
+
         return NextResponse.json({
             totalRides,
             activeRides,
@@ -37,7 +48,7 @@ export async function GET() {
         })
 
     } catch (error) {
-        console.error("Dashboard Stats API Error:", error)
+        logError(error, "Dashboard Stats API")
         return NextResponse.json({ error: "Failed to fetch stats" }, { status: 500 })
     }
 }
