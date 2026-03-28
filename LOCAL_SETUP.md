@@ -52,5 +52,5 @@ npm run start
 ## Troubleshooting
 
 - **Node Version**: Ensure `node -v` shows a compatible version.
-- **Port Conflict**: If port 7000 is in use, you can change it using `PORT=7001 npm run dev`.
+- **Port Conflict**: If port 7000 is in use, you can change it using `npm run dev -- -p 7001`.
 - **Database**: Ensure your local database is running and accessible via the credentials in `.env`.
