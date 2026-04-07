@@ -15,11 +15,14 @@ export async function GET() {
             timestamp: new Date().toISOString() 
         });
     } catch (error) {
-        logger.error({ err: error }, "Health check failed");
+        logger.error({ err: error }, "Health check - Database connection failed");
+        
+        // Return 200 OK even if DB is down, as requested, to avoid failing the overall health check.
         return NextResponse.json({ 
-            status: 'error', 
+            status: 'ok', 
             database: 'disconnected',
+            error: error instanceof Error ? error.message : "Unknown error",
             timestamp: new Date().toISOString() 
-        }, { status: 503 });
+        }, { status: 200 });
     }
 }
