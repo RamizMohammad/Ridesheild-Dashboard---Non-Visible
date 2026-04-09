@@ -1,0 +1,30 @@
+services:
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dashboard-local
+    ports:
+      - "7000:7000"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+    # Ensure hot reloading if you were using a dev-specific Dockerfile, 
+    # but since we use the production Dockerfile, this runs the standalone build.
+    # To use dev mode in Docker, you would need a different Dockerfile or target.
+
+  # Optional: Local Database
+  # db:
+  #   image: mysql:8.0
+  #   restart: always
+  #   environment:
+  #     MYSQL_DATABASE: centraldb
+  #     MYSQL_ROOT_PASSWORD: StrongPassword@123
+  #   ports:
+  #     - "3306:3306"
+  #   volumes:
+  #     - db_data:/var/lib/mysql
+
+# volumes:
+#   db_data:
