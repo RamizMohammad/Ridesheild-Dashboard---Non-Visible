@@ -155,3 +155,4 @@ export function ModernMonitorConsole({ ride }: MonitorConsoleProps) {
         </div>
     )
 }
+

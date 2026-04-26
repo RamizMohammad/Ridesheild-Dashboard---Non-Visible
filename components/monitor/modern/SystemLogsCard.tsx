@@ -35,3 +35,4 @@ export function SystemLogsCard({ logs }: SystemLogsCardProps) {
         </div>
     )
 }
+

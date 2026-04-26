@@ -4,40 +4,55 @@ import { AlertTriangle, MapPin, Phone, Video, CheckCircle, ArrowRight } from "lu
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 
-const incidents = [
-    {
-        id: "INC-9921",
-        type: "SOS Triggered",
-        location: "Connaught Place, Inner Circle",
-        time: "2 mins ago",
-        status: "Active",
-        severity: "critical",
-        driver: "Suresh Thakur",
-        user: "Ravi Kumar",
-    },
-    {
-        id: "INC-3822",
-        type: "Video Anomaly",
-        location: "Noida Sector 18",
-        time: "15 mins ago",
-        status: "Investigating",
-        severity: "high",
-        driver: "Rajesh Mishra",
-        user: "Priya Sharma",
-    },
-    {
-        id: "INC-7731",
-        type: "Audio Threshold",
-        location: "Hauz Khas Village",
-        time: "45 mins ago",
-        status: "Resolved",
-        severity: "medium",
-        driver: "Vikram Singh",
-        user: "Amit Verma",
-    }
-]
+import { useEffect, useState } from "react"
+
+interface Incident {
+    id: string;
+    type: string;
+    location: string;
+    time: string;
+    status: string;
+    severity: string;
+    driver: string;
+    user: string;
+}
 
 export function ModernEmergencyList() {
+    const [incidents, setIncidents] = useState<Incident[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        async function fetchEmergencies() {
+            try {
+                const res = await fetch("/api/emergencies");
+                const data = await res.json();
+                if (Array.isArray(data)) {
+                    setIncidents(data);
+                }
+            } catch (err) {
+                console.error("Failed to fetch emergencies", err);
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchEmergencies();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="glass rounded-[2rem] border border-black/5 dark:border-white/5 p-12 text-center text-slate-400 font-medium">
+                Loading incidents...
+            </div>
+        );
+    }
+
+    if (incidents.length === 0) {
+        return (
+            <div className="glass rounded-[2rem] border border-black/5 dark:border-white/5 p-12 text-center text-slate-400 font-medium">
+                No escalated incidents found.
+            </div>
+        );
+    }
     return (
         <div className="glass rounded-[2rem] border border-black/5 dark:border-white/5 overflow-hidden">
             <div className="p-6 border-b border-black/5 dark:border-white/5 flex items-center justify-between">
@@ -100,3 +115,4 @@ export function ModernEmergencyList() {
         </div>
     )
 }
+

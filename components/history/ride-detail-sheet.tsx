@@ -185,3 +185,4 @@ export function RideDetailSheet({ ride, open, onOpenChange }: RideDetailSheetPro
     </Sheet>
   )
 }
+

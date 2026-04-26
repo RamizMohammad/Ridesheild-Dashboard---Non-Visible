@@ -30,7 +30,7 @@ export function ModernHistoryLayout() {
 
     return (
         <div className="flex flex-col gap-6 p-6 animate-in fade-in duration-500 pb-20">
-            <ModernHistoryHeader />
+            <ModernHistoryHeader rides={rides} />
             <div className="flex flex-col gap-6">
                 <ModernHistoryFilters />
                 {loading ? (

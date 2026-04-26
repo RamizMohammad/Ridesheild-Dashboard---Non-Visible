@@ -22,7 +22,7 @@ export default function DashboardLayout({
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-950">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'oklch(0.105 0.018 264)' }}>
         <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
       </div>
     )

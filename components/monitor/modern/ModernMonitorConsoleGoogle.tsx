@@ -117,3 +117,4 @@ export function ModernMonitorConsoleGoogle({ ride }: MonitorConsoleProps) {
         </div>
     )
 }
+

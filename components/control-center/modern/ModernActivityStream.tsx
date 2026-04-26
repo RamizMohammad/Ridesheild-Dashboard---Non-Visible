@@ -54,3 +54,4 @@ export function ModernActivityStream({ logs }: ActivityStreamProps) {
         </div>
     )
 }
+

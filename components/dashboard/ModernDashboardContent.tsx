@@ -30,9 +30,9 @@ export function ModernDashboardContent() {
     return (
         <div className="space-y-10 transition-colors duration-500">
             <KPIGrid stats={stats} />
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="w-full">
                 <FleetActivityChart />
-                <SecurityPostureChart />
+                {/* <SecurityPostureChart /> */}
             </div>
             <SecurityViolationsTable />
         </div>

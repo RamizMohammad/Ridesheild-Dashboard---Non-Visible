@@ -300,3 +300,4 @@ export function ModernHistoryTable({ data }: ModernHistoryTableProps) {
         </div>
     )
 }
+

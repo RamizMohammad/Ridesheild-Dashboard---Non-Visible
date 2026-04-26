@@ -45,11 +45,27 @@ export async function GET() {
             LIMIT 50
         `);
 
-        const historyRides = rows.map((r: RideRow & { cur_stage: number }) => {
-            const startTime = new Date(r.started_at);
-            const endTime = new Date(r.completed_at);
-            const durationMs = endTime.getTime() - startTime.getTime();
-            const durationMinutes = Math.floor(durationMs / 60000);
+        const historyRides = rows.map((r: any) => {
+            const reqTime = r.requested_at ? new Date(r.requested_at) : new Date();
+            const startTime = r.started_at ? new Date(r.started_at) : null;
+            const endTime = r.completed_at ? new Date(r.completed_at) : null;
+            
+            let duration = "N/A";
+            if (startTime && endTime && !isNaN(startTime.getTime()) && !isNaN(endTime.getTime())) {
+                const durationMs = endTime.getTime() - startTime.getTime();
+                const durationMinutes = Math.floor(durationMs / 60000);
+                duration = `${durationMinutes}m`;
+            }
+
+            const formatTime = (date: Date | null) => {
+                if (!date || isNaN(date.getTime())) return "--:--";
+                return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            };
+
+            const formatDate = (date: Date | null) => {
+                if (!date || isNaN(date.getTime())) return "--/--/----";
+                return date.toLocaleDateString();
+            };
 
             return {
                 id: `RIDE-${r.rideid}`,
@@ -64,17 +80,16 @@ export async function GET() {
 
                 stage: r.cur_stage || 0,
                 status: r.status, // Pass raw status to frontend
-                duration: `${durationMinutes}m`,
-                alertSent: false, // Default
+                duration,
 
-                completedAt: endTime.toLocaleDateString() + ' ' + endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                location: r.dropLoc, // Use drop location as "final" location
-                startTime: startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                endTime: endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                completedAt: endTime ? `${formatDate(endTime)} ${formatTime(endTime)}` : `${formatDate(reqTime)} ${formatTime(reqTime)}`,
+                location: r.dropLoc, 
+                startTime: formatTime(startTime || reqTime),
+                endTime: formatTime(endTime || reqTime),
 
                 timeline: [
-                    { stage: 0, time: startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), label: "Ride Started", description: `Started at ${r.pickLoc}` },
-                    { stage: 0, time: endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), label: "Ride Completed", description: `Arrived at ${r.dropLoc}` }
+                    { stage: 0, time: formatTime(startTime), label: "Ride Started", description: `Started at ${r.pickLoc}` },
+                    { stage: 0, time: formatTime(endTime), label: "Ride Completed", description: `Arrived at ${r.dropLoc}` }
                 ],
                 logs: ["Ride completed successfully"]
             };
@@ -86,3 +101,4 @@ export async function GET() {
         return NextResponse.json({ error: "Failed to fetch history" }, { status: 500 });
     }
 }
+

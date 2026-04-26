@@ -146,3 +146,4 @@ export default function GoogleMapView({ center, zoom = 14, pickup, dropoff, driv
         </GoogleMap>
     )
 }
+

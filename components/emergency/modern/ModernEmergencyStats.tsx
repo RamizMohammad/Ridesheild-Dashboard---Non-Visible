@@ -1,66 +1,112 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Activity, Clock, AlertTriangle, CheckCircle2 } from "lucide-react"
 
 export function ModernEmergencyStats() {
+    const [stats, setStats] = useState({
+        activeSOS: 0,
+        avgResponse: "1m 12s",
+        resolved: 0,
+        totalEvents: 0
+    });
+
+    useEffect(() => {
+        async function loadStats() {
+            try {
+                const res = await fetch("/api/emergencies");
+                const data = await res.json();
+                if (Array.isArray(data)) {
+                    const active = data.filter(i => i.status === "Active").length;
+                    const resolved = data.filter(i => i.status === "Resolved").length;
+                    setStats({
+                        activeSOS: active,
+                        avgResponse: active > 0 ? "Under Review" : "Nominal",
+                        resolved: resolved,
+                        totalEvents: data.length
+                    });
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+        loadStats();
+    }, []);
+
+    const statCards = [
+        {
+            label: 'Active SOS',
+            value: stats.activeSOS.toString(),
+            sub: stats.activeSOS > 0 ? 'INTERVENTION REQ' : 'ALL CLEAR',
+            subColor: stats.activeSOS > 0 ? 'text-red-400' : 'text-emerald-400',
+            icon: AlertTriangle,
+            iconBg: 'bg-red-500/10',
+            iconColor: 'text-red-400',
+            borderAccent: 'border-t-red-500/60',
+            glowColor: 'rgba(239,68,68,0.12)',
+            pulse: stats.activeSOS > 0,
+        },
+        {
+            label: 'System Status',
+            value: stats.avgResponse,
+            sub: 'Operations Feed',
+            subColor: 'text-slate-400',
+            icon: Clock,
+            iconBg: 'bg-blue-500/10',
+            iconColor: 'text-blue-400',
+            borderAccent: 'border-t-blue-500/60',
+            glowColor: 'rgba(59,130,246,0.1)',
+            pulse: false,
+        },
+        {
+            label: 'Resolved Issues',
+            value: stats.resolved.toString(),
+            sub: 'Closed incidents',
+            subColor: 'text-emerald-400',
+            icon: CheckCircle2,
+            iconBg: 'bg-emerald-500/10',
+            iconColor: 'text-emerald-400',
+            borderAccent: 'border-t-emerald-500/60',
+            glowColor: 'rgba(16,185,129,0.1)',
+            pulse: false,
+        },
+        {
+            label: 'Total Incidents',
+            value: stats.totalEvents.toString(),
+            sub: 'Logged overall',
+            subColor: 'text-slate-400',
+            icon: Activity,
+            iconBg: 'bg-orange-500/10',
+            iconColor: 'text-orange-400',
+            borderAccent: 'border-t-orange-500/60',
+            glowColor: 'rgba(249,115,22,0.1)',
+            pulse: false,
+        },
+    ];
+
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+            {statCards.map((s, i) => (
+                <div
+                    key={i}
+                    className={`group relative glass-bright rounded-2xl border-t-2 ${s.borderAccent} overflow-hidden card-lift`}
+                    style={{ animation: `float-up 0.5s ease both`, animationDelay: `${i * 0.07}s` }}
+                >
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                        style={{ background: `radial-gradient(circle at 50% 0%, ${s.glowColor} 0%, transparent 70%)` }} />
 
-            {/* Active SOS */}
-            <div className="glass p-6 rounded-[2rem] border border-red-500/20 relative overflow-hidden group">
-                <div className="absolute top-0 right-0 p-4 opacity-50 text-red-500/20 group-hover:scale-110 transition-transform duration-500">
-                    <AlertTriangle className="w-24 h-24" />
-                </div>
-                <div className="relative z-10">
-                    <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">Active SOS</p>
-                    <div className="flex items-baseline gap-2 mt-2">
-                        <span className="text-4xl font-bold text-red-600 dark:text-red-500">3</span>
-                        <span className="text-xs font-bold text-red-400 animate-pulse">CRITICAL</span>
+                    <div className="relative p-5">
+                        <div className="flex items-start justify-between mb-4">
+                            <div className={`w-10 h-10 rounded-xl ${s.iconBg} ${s.iconColor} flex items-center justify-center`}>
+                                <s.icon className={`w-5 h-5 ${s.pulse ? 'animate-pulse' : ''}`} />
+                            </div>
+                        </div>
+                        <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest mb-1">{s.label}</p>
+                        <p className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">{s.value}</p>
+                        <p className={`text-[12px] font-semibold mt-1 ${s.subColor}`}>{s.sub}</p>
                     </div>
                 </div>
-            </div>
-
-            {/* Avg Response Time */}
-            <div className="glass p-6 rounded-[2rem] border border-black/5 dark:border-white/5 relative overflow-hidden">
-                <div className="relative z-10">
-                    <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">Avg Response</p>
-                    <div className="flex items-baseline gap-2 mt-2">
-                        <span className="text-4xl font-bold text-slate-900 dark:text-white">1m 42s</span>
-                        <span className="text-xs font-bold text-green-500">-12s vs avg</span>
-                    </div>
-                </div>
-                <div className="absolute bottom-4 right-4 text-blue-500">
-                    <Clock className="w-8 h-8 opacity-50" />
-                </div>
-            </div>
-
-            {/* Resolved Today */}
-            <div className="glass p-6 rounded-[2rem] border border-black/5 dark:border-white/5 relative overflow-hidden">
-                <div className="relative z-10">
-                    <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">Resolved Today</p>
-                    <div className="flex items-baseline gap-2 mt-2">
-                        <span className="text-4xl font-bold text-slate-900 dark:text-white">12</span>
-                        <span className="text-xs font-bold text-green-500">100% Rate</span>
-                    </div>
-                </div>
-                <div className="absolute bottom-4 right-4 text-green-500">
-                    <CheckCircle2 className="w-8 h-8 opacity-50" />
-                </div>
-            </div>
-
-            {/* Total Events */}
-            <div className="glass p-6 rounded-[2rem] border border-black/5 dark:border-white/5 relative overflow-hidden">
-                <div className="relative z-10">
-                    <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">Total Events</p>
-                    <div className="flex items-baseline gap-2 mt-2">
-                        <span className="text-4xl font-bold text-slate-900 dark:text-white">45</span>
-                    </div>
-                </div>
-                <div className="absolute bottom-4 right-4 text-orange-500">
-                    <Activity className="w-8 h-8 opacity-50" />
-                </div>
-            </div>
-
+            ))}
         </div>
-    )
+    );
 }

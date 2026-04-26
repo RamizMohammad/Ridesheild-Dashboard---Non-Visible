@@ -9,7 +9,7 @@ export function ModernEmergencyHeader() {
             <div className="absolute top-0 right-0 w-96 h-96 bg-red-600/10 rounded-full blur-3xl -z-10 animate-pulse" />
 
             <div className="flex items-center gap-6">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-red-600 to-orange-600 flex items-center justify-center shadow-lg shadow-red-600/30 text-white animate-pulse">
+                <div className="w-16 h-16 rounded-2xl bg-linear-to-br from-red-600 to-orange-600 flex items-center justify-center shadow-lg shadow-red-600/30 text-white animate-pulse">
                     <Siren className="w-8 h-8" />
                 </div>
                 <div>
@@ -32,3 +32,4 @@ export function ModernEmergencyHeader() {
         </div>
     )
 }
+

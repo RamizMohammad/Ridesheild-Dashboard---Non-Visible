@@ -27,3 +27,4 @@ export const logError = (error: any, context?: string) => {
         context 
     }, error?.message || "Unknown error");
 };
+

@@ -40,3 +40,4 @@ export function ModernStageFilters({ currentFilter, onFilterChange }: StageFilte
         </div>
     )
 }
+
